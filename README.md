@@ -10,7 +10,7 @@ Terminal file manager configured for development and SSH workflows.
 
 Install:
 
-```
+```bash
 ~/dotfiles/yazi/install.sh
 ```
 
@@ -22,3 +22,15 @@ Install:
 
 ```bash
 ~/dotfiles/zsh/install.sh
+```
+
+### Tmux
+
+Terminal multiplexer configuration for development and remote SSH workflows.
+
+Install:
+
+```bash
+~/dotfiles/tmux/install.sh
+```
+
