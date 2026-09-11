@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-YAZI_SOURCE="$DOTFILES_DIR/yazi"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+YAZI_SOURCE="$SCRIPT_DIR"
 YAZI_TARGET="$HOME/.config/yazi"
 
 mkdir -p "$HOME/.config"
