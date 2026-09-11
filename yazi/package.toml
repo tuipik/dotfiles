@@ -1,0 +1,12 @@
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "58c4f4e"
+hash = "5bb0bfab901d3601c370eafdd66edd31"
+
+[[plugin.deps]]
+use = "yunmango/yazi-markdown-viewer:md-glow"
+rev = "74e48fc"
+hash = "f8f44a3a8d8ba70fa850b4b0f5d71c6b"
+
+[flavor]
+deps = []
