@@ -3,6 +3,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=../lib/distro.sh
+source "$DOTFILES_DIR/lib/distro.sh"
+
 ZSHRC_SOURCE="$SCRIPT_DIR/.zshrc"
 ZSHRC_TARGET="$HOME/.zshrc"
 
@@ -14,19 +19,18 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-log "Installing Zsh"
+log "Installing Zsh dependencies"
 
-if ! command_exists zsh; then
-    sudo apt-get update
-    sudo apt-get install -y zsh
+if ! command_exists git; then
+    install_packages git
+else
+    echo "Git already installed: $(git --version)"
 fi
 
-log "Installing Oh My Zsh"
-
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    git clone \
-        https://github.com/ohmyzsh/ohmyzsh.git \
-        "$HOME/.oh-my-zsh"
+if ! command_exists zsh; then
+    install_packages zsh
+else
+    echo "Zsh already installed: $(zsh --version)"
 fi
 
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
