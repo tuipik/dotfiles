@@ -3,6 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=../lib/distro.sh
+source "$DOTFILES_DIR/lib/distro.sh"
 
 TMUX_SOURCE="$SCRIPT_DIR/.tmux.conf"
 TMUX_TARGET="$HOME/.tmux.conf"
@@ -22,8 +26,7 @@ command_exists() {
 log "Installing tmux"
 
 if ! command_exists tmux; then
-    sudo apt-get update
-    sudo apt-get install -y tmux
+    install_packages tmux
 else
     echo "tmux already installed: $(tmux -V)"
 fi
