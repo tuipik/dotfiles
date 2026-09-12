@@ -51,7 +51,8 @@ case "$DISTRO_FAMILY" in
             unzip \
             ripgrep \
             fd \
-            npm
+            npm \
+            tree-sitter-cli
         ;;
 esac
 
