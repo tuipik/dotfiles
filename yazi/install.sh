@@ -3,6 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=../lib/distro.sh
+source "$DOTFILES_DIR/lib/distro.sh"
 
 YAZI_SOURCE="$SCRIPT_DIR"
 YAZI_TARGET="$HOME/.config/yazi"
@@ -19,47 +23,44 @@ warn() {
     printf '  [WARN] %s\n' "$1"
 }
 
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
 # ---------------------------------------------------------------------------
-# OS check
+# Base dependencies
 # ---------------------------------------------------------------------------
-
-if [ ! -f /etc/os-release ]; then
-    echo "Cannot detect operating system."
-    exit 1
-fi
-
-# shellcheck disable=SC1091
-source /etc/os-release
-
-if [ "${ID:-}" != "ubuntu" ] && [ "${ID_LIKE:-}" != *"ubuntu"* ] && [ "${ID:-}" != "debian" ]; then
-    echo "This installer currently supports Ubuntu/Debian only."
-    exit 1
-fi
 
 log "Installing base dependencies"
 
-sudo apt-get update
+case "$DISTRO_FAMILY" in
+    debian)
+        install_packages \
+            ca-certificates \
+            curl \
+            gnupg \
+            fd-find \
+            ripgrep \
+            fzf \
+            zoxide \
+            jq \
+            poppler-utils
 
-sudo apt-get install -y \
-    ca-certificates \
-    curl \
-    gnupg \
-    fd-find \
-    ripgrep \
-    fzf \
-    zoxide \
-    jq \
-    poppler-utils
+        # Ubuntu/Debian packages fd as `fdfind`, while Yazi expects `fd`.
+        if ! command_exists fd && command_exists fdfind; then
+            log "Creating fd compatibility symlink"
+            sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+        fi
+        ;;
 
-# Ubuntu/Debian packages fd as `fdfind`, while Yazi expects `fd`.
-if ! command_exists fd && command_exists fdfind; then
-    log "Creating fd compatibility symlink"
-    sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
-fi
+    arch)
+        install_packages \
+            ca-certificates \
+            curl \
+            fd \
+            ripgrep \
+            fzf \
+            zoxide \
+            jq \
+            poppler
+        ;;
+esac
 
 # ---------------------------------------------------------------------------
 # Yazi
@@ -68,15 +69,26 @@ fi
 if ! command_exists yazi || ! command_exists ya; then
     log "Installing Yazi"
 
-    curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg \
-        | sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null
+    case "$DISTRO_FAMILY" in
+        debian)
+            curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg \
+                | sudo tee /usr/share/keyrings/yazi-keyring.gpg >/dev/null
 
-    echo \
-        'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' \
-        | sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null
+            echo \
+                'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' \
+                | sudo tee /etc/apt/sources.list.d/yazi.list >/dev/null
 
-    sudo apt-get update
-    sudo apt-get install -y yazi
+            # A new repository was added, so force a fresh APT index update.
+            DOTFILES_APT_UPDATED=0
+            refresh_package_index
+
+            install_packages yazi
+            ;;
+
+        arch)
+            install_packages yazi
+            ;;
+    esac
 else
     ok "Yazi already installed: $(yazi --version | head -n1)"
 fi
@@ -88,17 +100,28 @@ fi
 if ! command_exists glow; then
     log "Installing Glow"
 
-    sudo mkdir -p /etc/apt/keyrings
+    case "$DISTRO_FAMILY" in
+        debian)
+            sudo mkdir -p /etc/apt/keyrings
 
-    curl -fsSL https://repo.charm.sh/apt/gpg.key \
-        | sudo gpg --dearmor --yes -o /etc/apt/keyrings/charm.gpg
+            curl -fsSL https://repo.charm.sh/apt/gpg.key \
+                | sudo gpg --dearmor --yes -o /etc/apt/keyrings/charm.gpg
 
-    echo \
-        'deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *' \
-        | sudo tee /etc/apt/sources.list.d/charm.list >/dev/null
+            echo \
+                'deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *' \
+                | sudo tee /etc/apt/sources.list.d/charm.list >/dev/null
 
-    sudo apt-get update
-    sudo apt-get install -y glow
+            # A new repository was added, so force a fresh APT index update.
+            DOTFILES_APT_UPDATED=0
+            refresh_package_index
+
+            install_packages glow
+            ;;
+
+        arch)
+            install_packages glow
+            ;;
+    esac
 else
     ok "Glow already installed: $(glow --version 2>/dev/null | head -n1 || echo installed)"
 fi
