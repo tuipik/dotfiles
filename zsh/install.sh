@@ -36,6 +36,12 @@ else
     echo "Zsh already installed: $(zsh --version)"
 fi
 
+if ! infocmp xterm-kitty >/dev/null 2>&1; then
+    install_packages kitty-terminfo
+else
+    echo "Kitty terminfo already installed."
+fi
+
 ZSH_BIN="$(command -v zsh)"
 
 # ---------------------------------------------------------------------------
