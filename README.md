@@ -34,3 +34,11 @@ Install:
 ~/dotfiles/tmux/install.sh
 ```
 
+### Neovim
+
+Modern Neovim configuration with LSP, completion, Tree-sitter, Telescope and Yazi integration.
+
+Install:
+
+```bash
+~/dotfiles/nvim/install.sh
