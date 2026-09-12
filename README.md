@@ -2,6 +2,14 @@
 
 Personal development environment configuration for Linux.
 
+## Install
+
+Install the complete environment:
+
+```bash
+~/dotfiles/install.sh
+```
+
 ## Available configurations
 
 ### Yazi
