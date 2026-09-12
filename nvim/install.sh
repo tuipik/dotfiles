@@ -3,6 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=../lib/distro.sh
+source "$DOTFILES_DIR/lib/distro.sh"
 
 NVIM_SOURCE="$SCRIPT_DIR"
 NVIM_TARGET="$HOME/.config/nvim"
@@ -14,37 +18,42 @@ log() {
     printf '\n==> %s\n' "$1"
 }
 
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
 # ---------------------------------------------------------------------------
 # System dependencies
 # ---------------------------------------------------------------------------
 
 log "Installing system dependencies"
 
-if ! command_exists apt-get; then
-    echo "This installer currently supports Ubuntu/Debian only."
-    exit 1
-fi
+case "$DISTRO_FAMILY" in
+    debian)
+        install_packages \
+            ca-certificates \
+            curl \
+            git \
+            build-essential \
+            unzip \
+            ripgrep \
+            fd-find \
+            npm
 
-sudo apt-get update
+        # Debian/Ubuntu provides fd as `fdfind`.
+        if ! command_exists fd && command_exists fdfind; then
+            sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+        fi
+        ;;
 
-sudo apt-get install -y \
-    ca-certificates \
-    curl \
-    git \
-    build-essential \
-    unzip \
-    ripgrep \
-    fd-find \
-    npm
-
-# Ubuntu/Debian provides fd as `fdfind`.
-if ! command_exists fd && command_exists fdfind; then
-    sudo ln -sf "$(command -v fdfind)" /usr/local/bin/fd
-fi
+    arch)
+        install_packages \
+            ca-certificates \
+            curl \
+            git \
+            base-devel \
+            unzip \
+            ripgrep \
+            fd \
+            npm
+        ;;
+esac
 
 # ---------------------------------------------------------------------------
 # Neovim
