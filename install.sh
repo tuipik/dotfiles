@@ -4,6 +4,9 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# shellcheck source=lib/distro.sh
+source "$DOTFILES_DIR/lib/distro.sh"
+
 log() {
     printf '\n============================================================\n'
     printf '  %s\n' "$1"
@@ -32,6 +35,8 @@ run_installer() {
 echo
 echo "Dotfiles setup"
 echo "Repository: $DOTFILES_DIR"
+echo
+print_distro_info
 
 run_installer "Yazi"   "$DOTFILES_DIR/yazi/install.sh"
 run_installer "Zsh"    "$DOTFILES_DIR/zsh/install.sh"
