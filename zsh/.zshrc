@@ -10,7 +10,8 @@ plugins=(
 
 source "$ZSH/oh-my-zsh.sh"
 
-ZSH_CONFIG_DIR="$HOME/dotfiles/zsh/config"
+DOTFILES_DIR="${${(%):-%N}:A:h:h}"
+ZSH_CONFIG_DIR="$DOTFILES_DIR/zsh/config"
 
 for config in "$ZSH_CONFIG_DIR"/*.zsh; do
     [ -r "$config" ] && source "$config"

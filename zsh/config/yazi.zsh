@@ -13,4 +13,4 @@ function y() {
     rm -f -- "$tmp"
 }
 
-export YAZI_MARKDOWN_VIEWER_STYLE="$HOME/dotfiles/yazi/styles/markdown-dark.json"
+export YAZI_MARKDOWN_VIEWER_STYLE="$DOTFILES_DIR/yazi/styles/markdown-dark.json"
